@@ -4,7 +4,7 @@
 
 #### Why deep learning take off?
 
-<img src="/Users/euron/Documents/Notes/notes.assets/image-20210503235651054.png" style="zoom: 25%;" />
+<img src="https://tva1.sinaimg.cn/large/008i3skNgy1grnsqtl505j31fk0u04qp.jpg" style="zoom: 25%;" />
 
 ### Course Outline
 
@@ -54,20 +54,17 @@ $$
 
 #### Gradient Descent
 
-<img src="notes.assets/image-20210505014646172.png" alt="image-20210505014646172" style="zoom: 50%;" />
+<img src="https://tva1.sinaimg.cn/large/008i3skNgy1grnsqq4cf0j313o0medoz.jpg" alt="image-20210505014646172" style="zoom: 50%;" />
 
 #### Computation Graph
 
 ##### Forward
 
-<img src="notes.assets/image-20210505015922894.png" alt="image-20210505015922894" style="zoom:33%;" />
-$$
-<Empty \space Math \space Block>
-$$
+<img src="https://tva1.sinaimg.cn/large/008i3skNgy1grnsqjioc8j30rs0ak421.jpg" alt="image-20210505015922894" style="zoom:33%;" />
 
 ##### Backward
 
-<img src="notes.assets/image-20210505021046546.png" alt="image-20210505021046546" style="zoom:50%;" />
+<img src="https://tva1.sinaimg.cn/large/008i3skNgy1grnsqia641j313m0mctyv.jpg" alt="image-20210505021046546" style="zoom:50%;" />
 
 > $$
 > \frac{dL(a,y)}{dz}=\frac{dL}{da}\frac{da}{dz}=(-\frac{y}{a}+\frac{1-y}{1-a})a(1-a)=y(a-1)+a(1-y)=a-y
@@ -75,11 +72,11 @@ $$
 
 #### Logistic regression on m examples
 
-<img src="notes.assets/image-20210505022605350.png" alt="image-20210505022605350" style="zoom:50%;" />
+<img src="https://tva1.sinaimg.cn/large/008i3skNgy1grnsqgwbnkj313a0m2nax.jpg" alt="image-20210505022605350" style="zoom:50%;" />
 
 #### Vectorization
 
-<img src="notes.assets/image-20210505025320505.png" alt="image-20210505025320505" style="zoom:50%;" />
+<img src="https://tva1.sinaimg.cn/large/008i3skNgy1grnsqfhd7bj312i0jodu3.jpg" alt="image-20210505025320505" style="zoom:50%;" />
 
 #### Verctorizing Logistic Regression
 
@@ -113,7 +110,7 @@ db=\frac{1}{m}\sum_{i=1}^mdz^{(i)}\\
 dw=\frac{1}{m}X(dZ)^\top
 $$
 
-<img src="notes.assets/image-20210505032616217.png" alt="image-20210505032616217" style="zoom:50%;" />
+<img src="https://tva1.sinaimg.cn/large/008i3skNgy1grnsqbsurmj31360lctry.jpg" alt="image-20210505032616217" style="zoom:50%;" />
 
 ```python
 Z = np.dot(w.T, X) + b
@@ -133,11 +130,11 @@ $$
 
 ##### Broadcasting in Python
 
-<img src="notes.assets/image-20210505034054474.png" alt="image-20210505034054474" style="zoom:50%;" />
+<img src="https://tva1.sinaimg.cn/large/008i3skNgy1grnsq9sjd2j310w0kon42.jpg" alt="image-20210505034054474" style="zoom:50%;" />
 
 ### Shallow Neural Network
 
-<img src="notes.assets/image-20210505234449814.png" alt="image-20210505234449814" style="zoom:50%;" />
+<img src="https://tva1.sinaimg.cn/large/008i3skNgy1grnsq8fc7mj313k0lq7iv.jpg" alt="image-20210505234449814" style="zoom:50%;" />
 $$
 a^{[l]\leftarrow layter}_{i\leftarrow node}
 $$
@@ -173,14 +170,14 @@ $g$ is the activation function
 
 ##### Sigmoid function (Never use this except for output layer)
 
-<img src="notes.assets/image-20210506004732494.png" alt="image-20210506004732494" style="zoom:50%;" />
+<img src="https://tva1.sinaimg.cn/large/008i3skNgy1grnsq3kzkhj30d006edgs.jpg" alt="image-20210506004732494" style="zoom:50%;" />
 $$
 a=\frac{1}{1+e^{-z}}
 $$
 
 ##### Hyperbolic tangent function (tanh)
 
-<img src="notes.assets/image-20210506004841301.png" alt="image-20210506004841301" style="zoom:50%;" />
+<img src="https://tva1.sinaimg.cn/large/008i3skNgy1grnsq26gmlj30cm07i0t2.jpg" alt="image-20210506004841301" style="zoom:50%;" />
 $$
 a=\tanh (z)=\frac{e^z-e^{-z}}{e^z+e^{-z}}
 $$
@@ -190,14 +187,14 @@ A shifted version of sigmoid function, works **better** than sigmoid.
 
 ##### Rectified linear unit function (ReLU) -- Default choice
 
-<img src="notes.assets/image-20210506004909311.png" alt="image-20210506004909311" style="zoom:50%;" />
+<img src="https://tva1.sinaimg.cn/large/008i3skNgy1grnsq0tdqsj30ci0700sx.jpg" alt="image-20210506004909311" style="zoom:50%;" />
 $$
 a=max(0,z)
 $$
 
 ##### Leaky ReLU
 
-<img src="notes.assets/image-20210506004950963.png" alt="image-20210506004950963" style="zoom:50%;" />
+<img src="https://tva1.sinaimg.cn/large/008i3skNgy1grnspzdc83j30dc07a0tv.jpg" alt="image-20210506004950963" style="zoom:50%;" />
 $$
 a=max(0.01z,z)
 $$
@@ -257,11 +254,11 @@ $$
 dZ^{[L]}=A^{[L]}-Y
 $$
 
-<img src="notes.assets/image-20210506022337365.png" alt="image-20210506022337365" style="zoom:50%;" />
+<img src="https://tva1.sinaimg.cn/large/008i3skNgy1grnspv8oyaj60ng0gck1202.jpg" alt="image-20210506022337365" style="zoom:50%;" />
 
-<img src="notes.assets/image-20210506024146558.png" alt="image-20210506024146558" style="zoom:50%;" />
+<img src="https://tva1.sinaimg.cn/large/008i3skNgy1grnspttnvwj311k0kyqm7.jpg" alt="image-20210506024146558" style="zoom:50%;" />
 
-<img src="notes.assets/image-20210506024522855.png" alt="image-20210506024522855" style="zoom:50%;" />
+<img src="https://tva1.sinaimg.cn/large/008i3skNgy1grnsps096wj311q0ky7fm.jpg" alt="image-20210506024522855" style="zoom:50%;" />
 
 #### Random initialization
 
@@ -298,7 +295,7 @@ $b$ do not have symmetric breaking problem.
 >
 > $x=a^{[0]},\ \hat y=a^{[L]}$
 
-<img src="notes.assets/image-20210506182612063.png" alt="image-20210506182612063" style="zoom:50%;" />
+<img src="https://tva1.sinaimg.cn/large/008i3skNgy1grnspoqi19j311u0l8h2f.jpg" alt="image-20210506182612063" style="zoom:50%;" />
 
 #### Forward propagation for layer l
 
@@ -329,14 +326,14 @@ dW^{[l]}=\frac{1}{m}dZ^{[l]}A^{[l-1]\top}\\
 db^{[l]}=\frac{1}{m}\text{np.sum}(dZ^{[l]},\text{axis=1, keepdims=True})\\
 dA^{[l-1]}=W^{[l]\top}dZ^{[l]}
 $$
-<img src="notes.assets/image-20210506213946520.png" alt="image-20210506213946520"  />
+<img src="https://tva1.sinaimg.cn/large/008i3skNgy1grnsplfdlxj30j808e0uo.jpg" alt="image-20210506213946520"  />
 
 For final layer
 $$
 dA^{[L]}=\sum_{i=1}^m (-\frac{y^{(i)}}{a^{(i)}}+\frac{1-y^{(i)}}{1-a^{(i)}})
 $$
 
-<img src="notes.assets/image-20210506204504399.png" alt="image-20210506204504399" style="zoom:50%;" />
+<img src="https://tva1.sinaimg.cn/large/008i3skNgy1grnsnts5njj31a80s6b29.jpg" alt="image-20210506204504399" style="zoom:50%;" />
 
 #### Hyperparameters
 
@@ -432,11 +429,11 @@ a3 /= keep_prob # Because a3 is reduced by (1 - keep_prob)
 
 - ##### Data augmentation
 
-<img src="notes.assets/image-20210512183529854.png" alt="image-20210512183529854" style="zoom:33%;" />
+<img src="https://tva1.sinaimg.cn/large/008i3skNgy1grnskg0otmj310m0g249r.jpg" alt="image-20210512183529854" style="zoom:33%;" />
 
 - ##### Early stopping
 
-<img src="notes.assets/image-20210512184438925.png" alt="image-20210512184438925" style="zoom:33%;" />
+<img src="https://tva1.sinaimg.cn/large/008i3skNgy1grnskemty9j31240kedp3.jpg" alt="image-20210512184438925" style="zoom:33%;" />
 
 ### Setting Up Optimization Problem
 
@@ -458,7 +455,7 @@ $$
 
 **Use same $\mu$ and $\sigma$ to normalize the training set and test set**.
 
-<img src="notes.assets/image-20210512190236641.png" alt="image-20210512190236641" style="zoom:50%;" />
+<img src="https://tva1.sinaimg.cn/large/008i3skNgy1grnskav044j31340ls4b7.jpg" alt="image-20210512190236641" style="zoom:50%;" />
 
 #### Vanishing/exploding gradients
 
@@ -535,9 +532,9 @@ Mini-batch t: $X^{\{t\}}, Y^{\{t\}}$
 >
 >  $X^{\{t\}}, Y^{\{t\}}\to\ \text{mini-batch}$
 
-![image-20210516000309399](notes.assets/image-20210516000309399.png)
+![image-20210516000309399](https://tva1.sinaimg.cn/large/008i3skNgy1grnsk5u6ilj31380m4ayj.jpg)
 
-![image-20210516000527781](notes.assets/image-20210516000527781.png)
+![image-20210516000527781](https://tva1.sinaimg.cn/large/008i3skNgy1grnsk4c34ij312e0fkahv.jpg)
 
 #### Choosing the mini-batch size
 
@@ -559,7 +556,7 @@ Make sure mini-batch **fit in CPU/GPU memory**.
 
 1. **Shuffle**: Create a shuffled version of the training set (X, Y) as shown below. Each column of X and Y represents a training example. Note that the random shuffling is done synchronously between X and Y. Such that after the shuffling the $i^{th}$ column of X is the example corresponding to the $i^{th}$ label in Y. The shuffling step ensures that examples will be split randomly into different mini-batches. 
 
-![image-20210516030016911](notes.assets/image-20210516030016911.png)
+![image-20210516030016911](https://tva1.sinaimg.cn/large/008i3skNgy1grnsk0ii58j30uw0gon0o.jpg)
 
 ```python
 permutation = list(np.random.permutation(m))  #m为样本数
@@ -569,7 +566,7 @@ shuffled_Y = Y[:, permutation].reshape((1,m))
 
 2. **Partition**: Partition the shuffled (X, Y) into mini-batches of size `mini_batch_size` (here 64). Note that the number of training examples is not always divisible by `mini_batch_size`. The last mini batch might be smaller, but you don't need to worry about this. When the final mini-batch is smaller than the full `mini_batch_size`, it will look like this: 
 
-![image-20210516030149244](notes.assets/image-20210516030149244.png)
+![image-20210516030149244](https://tva1.sinaimg.cn/large/008i3skNgy1grnsjymd88j30vk0h0tav.jpg)
 
 #### Exponentially weighted averages
 
@@ -581,9 +578,9 @@ $V_t$ is approximately averaging over $\frac{1}{1-\beta}$ examples
 $$
 (1-\epsilon)^{\frac{1}{\epsilon}}=\frac{1}{e}\approx0.35
 $$
-![image-20210516003048824](notes.assets/image-20210516003048824.png)
+![image-20210516003048824](https://tva1.sinaimg.cn/large/008i3skNgy1grnsjvgotvj31340m2na3.jpg)
 
-<img src="notes.assets/image-20210516004914526.png" alt="image-20210516004914526" style="zoom:50%;" />
+<img src="https://tva1.sinaimg.cn/large/008i3skNgy1grnsjty10uj30kg08ijtm.jpg" alt="image-20210516004914526" style="zoom:50%;" />
 
 The **efficiency** of the exponentially weighted averages is because it the computer can overwrite $V_\theta$ over and over (and only 1 line code), and this requires very small memory. In contrast, the direct computation of average requires very large memory when averaging over many examples.
 
@@ -593,7 +590,7 @@ $$
 V_t=\frac{\beta V_{t-1}+(1-\beta)\theta_t}{1-\beta^t}
 $$
 
-![image-20210516005840923](notes.assets/image-20210516005840923.png)
+![image-20210516005840923](https://tva1.sinaimg.cn/large/008i3skNgy1grnsjqcmryj314q0mox2n.jpg)
 
 Normally, people just wait for warming up in practice.
 
@@ -630,7 +627,7 @@ The most common value for $\beta$ is 0.9.
 
 In some literature, $(1-\beta)$ is omitted. That is just scaling the VdW or Vdb by $\frac{1}{1-\beta}$ (it will affect the learning rate).
 
-![image-20210517221037367](notes.assets/image-20210517221037367.png)
+![image-20210517221037367](https://tva1.sinaimg.cn/large/008i3skNgy1grnsjmhbdhj31j20i4q8k.jpg)
 
 #### RMSProp (Root Mean Square Prop)
 
@@ -662,7 +659,7 @@ On iteration t:
 	b = b - learning_rate * Vdb_corrected / (sqrt(Sdb_corrected + epsilon))	
 ```
 
-![image-20210516015530566](notes.assets/image-20210516015530566.png)
+![image-20210516015530566](https://tva1.sinaimg.cn/large/008i3skNgy1grnsji6iw2j31260k8qib.jpg)
 
 **How does Adam work?**
 1. It calculates an exponentially weighted average of past gradients, and stores it in variables $v$ (before bias correction) and $v^{corrected}$ (with bias correction). 
@@ -697,7 +694,7 @@ $$
 \alpha=\frac{1}{1+decay\ rate\times epoch\_num}\alpha_0
 $$
 
-![image-20210516021021776](notes.assets/image-20210516021021776.png)
+![image-20210516021021776](https://tva1.sinaimg.cn/large/008i3skNgy1grnsjeqqoij31260lcdno.jpg)
 
 ### Hyperparameter Tuning
 
@@ -725,9 +722,9 @@ z^{(i)}_{norm}=\frac{z^{(i)}-\mu}{\sqrt{\sigma^2+\epsilon}}\\
 $$
 where $\gamma$ and $\beta$ here are learnable parameters, $\gamma$ and $\beta$ **control the mean and variance** of $\tilde{z}^{(i)}$. 
 
-![image-20210520001012653](notes.assets/image-20210520001012653.png)
+![image-20210520001012653](https://tva1.sinaimg.cn/large/008i3skNgy1grnsj9upcbj311s0iqtko.jpg)
 
-![image-20210520004803687](notes.assets/image-20210520004803687.png)
+![image-20210520004803687](https://tva1.sinaimg.cn/large/008i3skNgy1grnsj6lsl8j313a0lstov.jpg)
 
 ### Softmax regression
 
@@ -777,7 +774,7 @@ Set the test set to be **big enough to give high confidence** i the overall perf
 
 **Avoidable bias**: the difference between bayes errior and training error.
 
-![image-20210520224238509](notes.assets/image-20210520224238509.png)
+![image-20210520224238509](https://tva1.sinaimg.cn/large/008i3skNgy1grnsj01zfmj312o0ic46x.jpg)
 
 ### Improving Model Performance
 
@@ -802,7 +799,7 @@ Set the test set to be **big enough to give high confidence** i the overall perf
 
 Find a set of mislabeled examples in dev set, and look at the mislabeled examples for false positives and false negatives. Then count up the nimber of errors that fall into various different categories.
 
-![image-20210522185801281](notes.assets/image-20210522185801281.png)
+![image-20210522185801281](https://tva1.sinaimg.cn/large/008i3skNgy1grnsiu5n46j315g0ec7j6.jpg)
 
 #### Clearning Up Incorrectly Labeled Data
 
@@ -816,9 +813,9 @@ DL algoritms are quite **robust** to random errors in the **training set**.
 
 #### Bias/varience on mismatched training and dev/test sets
 
-![image-20210522225549795](notes.assets/image-20210522225549795.png)
+![image-20210522225549795](https://tva1.sinaimg.cn/large/008i3skNgy1grnsior057j30p80akn25.jpg)
 
-![image-20210522230315447](notes.assets/image-20210522230315447.png)
+![image-20210522230315447](https://tva1.sinaimg.cn/large/008i3skNgy1grnsiko7a8j312a0le7i6.jpg)
 
 #### Addressing Data Mismatch
 
@@ -835,7 +832,7 @@ Transfer learning makes sense when you have **a lot of** data for the problem yo
 - You have a lot more data for A than B
 - Low level features from A could be helpful for B.
 
-![image-20210522232210402](notes.assets/image-20210522232210402.png)
+![image-20210522232210402](https://tva1.sinaimg.cn/large/008i3skNgy1grnsiedn70j312c0lqnc8.jpg)
 
 ### Multi-task learning
 
@@ -844,7 +841,7 @@ Transfer learning makes sense when you have **a lot of** data for the problem yo
 
 ### End-to-end Deep Learning
 
-![image-20210523143652507](notes.assets/image-20210523143652507.png)
+![image-20210523143652507](https://tva1.sinaimg.cn/large/008i3skNgy1grnsibav5xj60zs0j8dof02.jpg)
 
 #### Pros and cons of end-to-end deep learning
 
@@ -868,11 +865,11 @@ The problem is that, when we use a large image, the input size will be extremely
 
 ### Edge Detection Example
 
-![image-20210617122059773](notes.assets/image-20210617122059773.png)
+![image-20210617122059773](https://tva1.sinaimg.cn/large/008i3skNgy1grnsi4q50qj312w0lodwe.jpg)
 
-![image-20210617122649741](notes.assets/image-20210617122649741.png)
+![image-20210617122649741](https://tva1.sinaimg.cn/large/008i3skNgy1grnsi0oufoj313a0luqfy.jpg)
 
-![Convolution_schematic](notes.assets/Convolution_schematic-4000236.gif)
+![Convolution_schematic](https://tva1.sinaimg.cn/large/008i3skNgy1grnshx2zpeg30em0aojsv.gif)
 
 ### Padding
 
@@ -907,7 +904,7 @@ $$
 
 #### Thenical note on cross-correlation vs. convolution
 
-![image-20210617141936996](notes.assets/image-20210617141936996.png)
+![image-20210617141936996](https://tva1.sinaimg.cn/large/008i3skNgy1grnshrl3ebj312u0lutl8.jpg)
 
 ### Convolutions over volumes
 
@@ -921,7 +918,7 @@ $$
 
 ### One Layer of a Convolutional Network
 
-<img src="notes.assets/image-20210617201821522.png" alt="image-20210617201821522" style="zoom:50%;" />
+<img src="https://tva1.sinaimg.cn/large/008i3skNgy1grnshmzf00j312u0lue11.jpg" alt="image-20210617201821522" style="zoom:50%;" />
 
 #### Summary of notation
 
@@ -951,11 +948,11 @@ Weights: $f^{[l]}\times f^{[l]} \times n_C^{[l-1]} \times n_C^{[l]}$
 
 Bias: $n_C^{[l]}\ -\ (1,1,1,n_C^{[l]})$
 
-<video src="../../Desktop/conv_kiank.mp4"></video>
+<video src="conv_kiank.mp4"></video>
 
 ### Simple ConvNet Example
 
-![image-20210617205338917](notes.assets/image-20210617205338917.png)
+![image-20210617205338917](https://tva1.sinaimg.cn/large/008i3skNgy1grnsexoaaij31300lqk8x.jpg)
 
 #### Types of layer in a convolutional networks:
 
@@ -967,9 +964,9 @@ Bias: $n_C^{[l]}\ -\ (1,1,1,n_C^{[l]})$
 
 #### Max pooling
 
-![image-20210617210319029](notes.assets/image-20210617210319029.png)
+![image-20210617210319029](https://tva1.sinaimg.cn/large/008i3skNgy1grnser2fjzj312w0lstkl.jpg)
 
-![image-20210617210801177](notes.assets/image-20210617210801177.png)
+![image-20210617210801177](https://tva1.sinaimg.cn/large/008i3skNgy1grnseltl7bj312k0lk4hx.jpg)
 
 The max pooling computation is done `independently` on each of $n_C$ channels.
 
@@ -993,9 +990,9 @@ In fact, pooling layers modify the input by choosing one value out of several va
 
 ### CNN Examples (Similar to LeNet-5)
 
-![image-20210617214442225](notes.assets/image-20210617214442225.png)
+![image-20210617214442225](https://tva1.sinaimg.cn/large/008i3skNgy1grnsdkkh44j313e0lska3.jpg)
 
-![image-20210617220340826](notes.assets/image-20210617220340826.png)
+![image-20210617220340826](https://tva1.sinaimg.cn/large/008i3skNgy1grnsdp5ac3j31240k8qfq.jpg)
 
 ### Why Convolutions?
 
@@ -1005,7 +1002,7 @@ The reasons why ConvNet needs much less parameter):
 
 - **Sparsity of connections**: In each layer, each output value depends only on a small number of inputs.
 
-  ![image-20210617222331810](notes.assets/image-20210617222331810.png)
+  ![image-20210617222331810](https://tva1.sinaimg.cn/large/008i3skNgy1grnsdyitv9j30zi0a8gt7.jpg)
 
 Through these two mechanisms, a neural network has a lot fewer parameters which allows it to be trained with smaller training set and is less prone to be overfitting.
 
@@ -1084,4 +1081,17 @@ $$
 $$
 This implies that each position in the $dZ$ matrix contributes equally to output because in the forward pass, we took an average. 
 
+### Case studies
+
+#### LeNet - 5
+
+![image-20210619191046040](https://tva1.sinaimg.cn/large/008i3skNgy1grnscw3fr1j313c0lwwt0.jpg)
+
+#### AlexNet
+
+![image-20210619193429376](https://tva1.sinaimg.cn/large/008i3skNgy1grnt1ks0gij31380m0qm6.jpg)
+
+#### VGG - 16 (16 refers to there are 16 layers with weights)
+
+![image-20210619194331666](https://tva1.sinaimg.cn/large/008i3skNgy1grntazm1taj31380m2h2d.jpg)
 
