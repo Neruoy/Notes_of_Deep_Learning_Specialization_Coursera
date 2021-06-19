@@ -7,4 +7,4 @@ This repository contains my personal study note and programming assignments. Fee
 4. Convolutional Neural Networks
 5. Natural Language Processing: Building sequence models
 # Study Note and Programming Assignment
-My personal study note (in markdown format) is in `notes`. The programming assignments are in `programming assignments`.
+My personal study note (in markdown format) is in `Notes`. The programming assignments are in `Programming Assignments`.
