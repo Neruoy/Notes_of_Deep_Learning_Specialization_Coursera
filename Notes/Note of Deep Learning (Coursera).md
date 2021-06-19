@@ -1099,13 +1099,21 @@ This implies that each position in the $dZ$ matrix contributes equally to output
 
 Very deep neural networks are difficult to train beacause of **vanishing** and **exploding** gradient types of problems. The **skip connections** allows you to take activation from one layer and suddenly feed it to another layer even much deeper in the neural network. Using that, you will bulid **ResNet** whihc enables you to train very deep networks.
 
-#### Residual block
+#### Residual block (Identity block)
 
 $$
 \large a^{[l+2]}=g(z^{[l+2]}+a^{[l]})
 $$
 
 ![image-20210619210738878](https://tva1.sinaimg.cn/large/008i3skNgy1grnvqk9rckj313c0lywt3.jpg)
+
+The `identity block` is the standard block used in ResNets, and corresponds to the case where the input activation (say $a^{[l]}$) has the **same dimension** as the output activation (say $a^{[l+2]}$).
+
+![image-20210620024631382](https://tva1.sinaimg.cn/large/008i3skNgy1gro5j3rl88j31080aiabi.jpg)
+
+The ResNet `"convolutional block"` is the second block type. You can use this type of block when the input and output dimensions **don't match up**. The difference with the identity block is that there is a CONV2D layer in the shortcut path:
+
+![image-20210620031553113](https://tva1.sinaimg.cn/large/008i3skNgy1gro6dnocn1j310i09ajvr.jpg)
 
 In theory, having a deeper network should only help. But in practice, having a plain network (no ResNet) is very deep means that your optimization algorithm just has a much harder time training. And so, in reality, your training error gets **worse** if you pick a network that is **too deep.**
 
