@@ -1018,6 +1018,12 @@ Through these two mechanisms, a neural network has a lot fewer parameters which 
 * Zero padding helps keep more information at the image borders, and is helpful for building deeper networks, because you can build a CONV layer without shrinking the height and width of the volumes
 * Pooling layers gradually reduce the height and width of the input by sliding a 2D window over each specified region, then summarizing the features in that region
 
+#### Terminology
+
+##### Window, kernel, filter, pool
+
+The words `kernel` and `filter` are used to refer to the same thing. The word `filter` accounts for the amount of `kernels` that will be used in a single convolution layer. `Pool`is the name of the operation that takes the max or average value of the kernels.
+
 ### Convolutional Layer Backward Pass 
 
 #### Computing dA:
@@ -1044,11 +1050,11 @@ db = \sum_h \sum_w dZ_{hw} \tag{3}
 $$
 As you have previously seen in basic neural networks, db is computed by summing $dZ$. In this case, you are just summing over all the gradients of the conv output (Z) with respect to the cost. 
 
-## Pooling Layer - Backward Pass
+### Pooling Layer - Backward Pass
 
 Next, let's implement the backward pass for the pooling layer, starting with the MAX-POOL layer. Even though a pooling layer has no parameters for backprop to update, you still need to backpropagate the gradient through the pooling layer in order to compute gradients for layers that came before the pooling layer. 
 
-### Max Pooling - Backward Pass  
+#### Max Pooling - Backward Pass 
 
 Before jumping into the backpropagation of the pooling layer, you are going to build a helper function called `create_mask_from_window()` which does the following: 
 
@@ -1065,7 +1071,7 @@ As you can see, this function creates a "mask" matrix which keeps track of where
 
 **Why keep track of the position of the max?** It's because this is the input value that ultimately influenced the output, and therefore the cost. Backprop is computing gradients with respect to the cost, so anything that influences the ultimate cost should have a non-zero gradient. So, backprop will "propagate" the gradient back to this particular input value that had influenced the cost.
 
-### Average Pooling - Backward Pass 
+#### Average Pooling - Backward Pass 
 
 In max pooling, for each input window, all the "influence" on the output came from a single input value--the max. In average pooling, every element of the input window has equal influence on the output. So to implement backprop, you will now implement a helper function that reflects this.
 
@@ -1077,6 +1083,5 @@ $$
 \end{bmatrix}\tag{5}
 $$
 This implies that each position in the $dZ$ matrix contributes equally to output because in the forward pass, we took an average. 
-
 
 
