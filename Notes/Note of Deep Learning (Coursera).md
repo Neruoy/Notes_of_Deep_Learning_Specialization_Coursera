@@ -1095,3 +1095,126 @@ This implies that each position in the $dZ$ matrix contributes equally to output
 
 ![image-20210619194331666](https://tva1.sinaimg.cn/large/008i3skNgy1grntazm1taj31380m2h2d.jpg)
 
+### Residual Networks (ResNets)
+
+Very deep neural networks are difficult to train beacause of **vanishing** and **exploding** gradient types of problems. The **skip connections** allows you to take activation from one layer and suddenly feed it to another layer even much deeper in the neural network. Using that, you will bulid **ResNet** whihc enables you to train very deep networks.
+
+#### Residual block
+
+$$
+\large a^{[l+2]}=g(z^{[l+2]}+a^{[l]})
+$$
+
+![image-20210619210738878](https://tva1.sinaimg.cn/large/008i3skNgy1grnvqk9rckj313c0lywt3.jpg)
+
+In theory, having a deeper network should only help. But in practice, having a plain network (no ResNet) is very deep means that your optimization algorithm just has a much harder time training. And so, in reality, your training error gets **worse** if you pick a network that is **too deep.**
+
+![image-20210619211447829](https://tva1.sinaimg.cn/large/008i3skNgy1grnvxy3tbaj31360lqwr2.jpg)
+
+#### Why ResNet works?
+
+The main reason is that it is so easy for these extra layers to learn the **identity function** that you are kind of guranteed that **it doesn't hurt performance** and thena lot the time you may be get lucky and then even **helps performance**.
+
+![image-20210619212917755](https://tva1.sinaimg.cn/large/008i3skNgy1grnwd1c803j312y0lsdxd.jpg)
+
+![image-20210619213131588](https://tva1.sinaimg.cn/large/008i3skNgy1grnwfcvkcoj312c0kyaq5.jpg)
+
+### Network in Network and 1x1 convolutions
+
+![image-20210619214327080](https://tva1.sinaimg.cn/large/008i3skNgy1grnwrrmaehj31300n8e7p.jpg)
+
+The 1 x 1convolution has nonlinearity, it allows you to learn a more complex function of your network by adding another layer.
+
+The 1 x 1 convolution can **shrink the number of channels**.
+
+<img src="https://tva1.sinaimg.cn/large/008i3skNgy1grnwu8zbkhj30qg0j4gx5.jpg" alt="image-20210619214550624" style="zoom:50%;" />
+
+### Inception Network
+
+#### Motivation for inception network
+
+![image-20210619215605723](https://tva1.sinaimg.cn/large/008i3skNgy1grnx4wuiitj311e0iun9r.jpg)
+
+The basic idea is that instead of you needing to pick one of these filter sizes or pooling you want and committing to that, you can do them all and just concatenate all the outputs, and **let the network learn whatever parameters it wants to use, whatever the combinations of these filter sizes it wants.**
+
+#### The problem of computational cost
+
+![image-20210619220059424](https://tva1.sinaimg.cn/large/008i3skNgy1grnxa0acfcj30yc0jy7cz.jpg)
+$$
+\#\text{multiplies}=\#\text{multiplies to compute each of output values}\times \#\text{output values}
+$$
+
+#### Using 1 x 1 convolution
+
+![image-20210619221253184](https://tva1.sinaimg.cn/large/008i3skNgy1grnxme5nzwj31300logy5.jpg)
+
+#### Inception module
+
+![image-20210619221810169](https://tva1.sinaimg.cn/large/008i3skNgy1grnxrvrx1pj31380lk4ga.jpg)
+
+### MobileNet
+
+#### Motivation for MobileNets
+
+- Low computational cost at deployment
+- Useful for mobile and embedded vision applications
+
+#### Key idea: Normal vs. depthwise-separable convolutions
+
+![image-20210619224525528](https://tva1.sinaimg.cn/large/008i3skNgy1grnyk9dkv2j31040jcn92.jpg)
+
+![image-20210619225249465](https://tva1.sinaimg.cn/large/008i3skNgy1grnyry06obj310w0jstix.jpg)
+
+Cost of normal convolution: **2160**
+
+Cose of depth wise separable convolution: 432 + 240 = **672**
+
+The ratio is equal to
+$$
+ratio=\frac{1}{n_C^\prime}+\frac{1}{f^2}
+$$
+
+#### MobileNet architecture
+
+![image-20210619230510053](https://tva1.sinaimg.cn/large/008i3skNgy1grnz4s8a6wj61300lgwul02.jpg)
+
+#### MobileNet v2 Bottleneck
+
+![image-20210619231219001](https://tva1.sinaimg.cn/large/008i3skNgy1grnzc839mzj31260ik7hr.jpg)
+
+### EfficientNet
+
+Three things you can do to scale things up or down are:
+
+- **r**: resolution (of images)
+- **d**: depth (of networks)
+- **w**: width (of layers)
+
+The EfficientNet can help you find a way to scale up or down networks.
+
+### Transfer Learning
+
+![image-20210619233726009](https://tva1.sinaimg.cn/large/008i3skNgy1gro02d5pymj31320m4aw1.jpg)
+
+### Data Augmentation
+
+#### Common augmentation method
+
+- Mirroring
+- Random cropping
+- Rotation
+- Shearing
+- Local warping
+- ...
+
+#### Color shifting
+
+![image-20210619234311374](https://tva1.sinaimg.cn/large/008i3skNgy1gro08czavaj313c0lwngx.jpg)
+
+This make the learning algorithm more robust to changes in the colors of the images.
+
+**"PCA color augmentation" (AlexNet)**: keep the overall color of the tint the same.
+
+![image-20210619234944258](https://tva1.sinaimg.cn/large/008i3skNgy1gro0f60xtnj31300lsdsk.jpg)
+
+![image-20210620000130425](https://tva1.sinaimg.cn/large/008i3skNgy1gro0rexp9rj31320loarr.jpg)
