@@ -1190,6 +1190,13 @@ $$
 
 ![image-20210619231219001](https://tva1.sinaimg.cn/large/008i3skNgy1grnzc839mzj31260ik7hr.jpg)
 
+**What you should remember**:
+
+* MobileNetV2's unique features are: 
+  * Depthwise separable convolutions that provide lightweight feature filtering and creation
+  * Input and output bottlenecks that preserve important information on either end of the block
+* Depthwise separable convolutions deal with both spatial and depth (number of channels) dimensions
+
 ### EfficientNet
 
 Three things you can do to scale things up or down are:
@@ -1203,6 +1210,14 @@ The EfficientNet can help you find a way to scale up or down networks.
 ### Transfer Learning
 
 ![image-20210619233726009](https://tva1.sinaimg.cn/large/008i3skNgy1gro02d5pymj31320m4aw1.jpg)
+
+You could try fine-tuning the model by re-running the optimizer in the last layers to improve accuracy. When you use a smaller learning rate, you take smaller steps to adapt it a little more closely to the new data. In transfer learning, the way you achieve this is by unfreezing the layers at the end of the network, and then re-training your model on the final layers with **a very low learning rate**. Adapting your learning rate to go over these layers in smaller steps can yield more fine details - and higher accuracy.
+
+**What you should remember**:
+
+* To adapt the classifier to new data: Delete the top layer, add a new classification layer, and train only on that layer
+* When freezing layers, avoid keeping track of statistics (like in the batch normalization layer)
+* Fine-tune the final layers of your model to capture high-level details near the end of the network and potentially improve accuracy 
 
 ### Data Augmentation
 
