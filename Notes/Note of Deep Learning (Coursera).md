@@ -1241,3 +1241,215 @@ This make the learning algorithm more robust to changes in the colors of the ima
 ![image-20210619234944258](https://tva1.sinaimg.cn/large/008i3skNgy1gro0f60xtnj31300lsdsk.jpg)
 
 ![image-20210620000130425](https://tva1.sinaimg.cn/large/008i3skNgy1gro0rexp9rj31320loarr.jpg)
+
+### Object Detection
+
+#### Object localization
+
+![image-20210620122732346](https://tva1.sinaimg.cn/large/008i3skNgy1grombp4q0kj312k0kaazf.jpg)
+
+In this section, the `upper left` of the image is **(0, 0)**, and at the `lower right` is **(1, 1)**.
+
+The bounding box is denoted by:
+$$
+(b_x, b_y, b_h, b_w)
+$$
+where $b_x, b_y$ are the coordinates of the midpoint, $b_h, b_w$ are height and weight respectively.
+
+![image-20210620123434171](https://tva1.sinaimg.cn/large/008i3skNgy1gromiyfvchj313g0lm4l9.jpg)
+
+![image-20210620124434634](https://tva1.sinaimg.cn/large/008i3skNgy1gromtdiq78j313g0m2tsb.jpg)
+
+#### Landmark detection
+
+![image-20210620125030756](https://tva1.sinaimg.cn/large/008i3skNgy1gromzjw83yj31380lyu0h.jpg)
+
+#### Object detection
+
+Before the raise of deep learning, people used **sliding windows** detection with simple linear classifer over hand-engineer features in order to perform object detection.
+
+![image-20210620131015174](https://tva1.sinaimg.cn/large/008i3skNgy1gronk3b5qkj31320lutzm.jpg)
+
+#### Convolutional implementation of sliding windows
+
+![image-20210620131642715](https://tva1.sinaimg.cn/large/008i3skNgy1gronqtfnwaj31340lsk7l.jpg)
+
+![image-20210620132303612](https://tva1.sinaimg.cn/large/008i3skNgy1gronxfb5cqj313e0lw1kx.jpg)
+
+#### Bounding box predictions
+
+![image-20210620135417725](https://tva1.sinaimg.cn/large/008i3skNgy1grootx63sxj313m0mcavo.jpg)
+
+The bounding box for YOLO $(b_x, b_y, b_h, b_w)$ is specified relative to the grid cell. And the width and height of the bounding box are specified as `fractions` of the overall width and height of the grid cell.
+
+![image-20210620140151223](https://tva1.sinaimg.cn/large/008i3skNgy1grop1ryn30j30yq0hwn9k.jpg)
+
+#### Intersection over Union (IoU)
+
+$$
+IoU=\frac{Area\ of\ intersection}{Area\ of\ union}
+$$
+
+"Correct" if $IoU ≥ 0.5$
+
+More generally, IoU is a measure of the overlap between two bounding boxes.
+
+![image-20210620190734216](https://tva1.sinaimg.cn/large/008i3skNgy1groxvv8ug1j30rs07edi2.jpg)
+
+#### Non-max suppression
+
+Non-max suppression is a way to make sure the algorithm detects each object **only once**.
+
+Non-max means that you are going to output your **maximal probabilities classifications**, but suppress the close-by ones that are non-maximal.
+
+![image-20210620141934839](https://tva1.sinaimg.cn/large/008i3skNgy1gropk7xp22j31360lkqmc.jpg)
+
+#### Anchor boxes
+
+![image-20210620142339721](https://tva1.sinaimg.cn/large/008i3skNgy1gropoh6pkuj313a0lkaq1.jpg)
+
+![image-20210620142737956](https://tva1.sinaimg.cn/large/008i3skNgy1gropslya5nj312w0lk7v2.jpg)
+
+Two cases that the algorithm does not handle well:
+
+- If there are **more than two** objects in the same grid cell.
+- Two objects are associated with same grid cell but both of  them have the **same anchor box shape**.
+
+**How to choose anchor boxes?**
+
+People used to just choose anchor boxes by hand or choose maybe 5 or 10 anchor box shapes that spans a variety of shapes that seems to cover the types of objects you seem to detect. As a much more advanced version is to use a **K-means algorithm** to group together two types of objects shapes you tend to get.  And then to use that to select a set of anchor boxes that are most stereotypically representative of the multiple, of the dozens of object classes you're trying to detect.
+
+#### YOLO Algorithm
+
+This algorithm "only looks once" at the image in the sense that it requires **only one forward propagation** pass through the network to make predictions. 
+
+![image-20210620144339169](https://tva1.sinaimg.cn/large/008i3skNgy1groq99sknrj31300lu1de.jpg)
+
+![image-20210620144507089](https://tva1.sinaimg.cn/large/008i3skNgy1groqat3w7vj31380jkkau.jpg)
+
+![image-20210620144716478](https://tva1.sinaimg.cn/large/008i3skNgy1groqd1gpq6j312c0iidts.jpg)
+
+#### **Programming Assignment Example**
+
+##### Inputs and outputs
+- The **input** is a batch of images, and each image has the shape (m, 608, 608, 3)
+- The **output** is a list of bounding boxes along with the recognized classes. Each bounding box is represented by 6 numbers $(p_c, b_x, b_y, b_h, b_w, c)$ as explained above. If you expand $c$ into an 80-dimensional vector, each bounding box is then represented by 85 numbers. 
+
+##### Anchor Boxes
+* Anchor boxes are chosen by exploring the training data to choose reasonable height/width ratios that represent the different classes.  For this assignment, 5 anchor boxes were chosen for you (to cover the 80 classes), and stored in the file './model_data/yolo_anchors.txt'
+* The dimension for anchor boxes is the second to last dimension in the encoding: $(m, n_H,n_W,anchors,classes)$.
+* The YOLO architecture is: IMAGE (m, 608, 608, 3) -> DEEP CNN -> ENCODING (m, 19, 19, 5, 85). 
+
+<img src="https://tva1.sinaimg.cn/large/008i3skNgy1grow71z6zqj30w80h448d.jpg" alt="image-20210620180907061" style="zoom:50%;" />
+
+##### Encoding
+Let's look in greater detail at what this encoding represents. 
+
+![image-20210620175821794](https://tva1.sinaimg.cn/large/008i3skNgy1grovvweh6oj31900n0dtb.jpg)
+
+If the center/midpoint of an object falls into a grid cell, that grid cell is responsible for detecting that object.
+
+Since you're using 5 anchor boxes, each of the 19 x19 cells thus encodes information about 5 boxes. Anchor boxes are defined only by their width and height.
+
+For simplicity, you'll flatten the last two dimensions of the shape (19, 19, 5, 85) encoding, so the output of the Deep CNN is (19, 19, 425).
+
+![image-20210620175951073](https://tva1.sinaimg.cn/large/008i3skNgy1grovxeyfj1j31720nswm5.jpg)
+
+##### Class score
+
+Now, for each box (of each cell) you'll compute the following element-wise product and extract a probability that the box contains a certain class.
+
+The class score is $score_{c,i} = p_{c} \times c_{i}$: the probability that there is an object $p_{c}$ times the probability that the object is a certain class $c_{i}$.
+
+![image-20210620180235933](https://tva1.sinaimg.cn/large/008i3skNgy1grow0a34rkj31660ii4a3.jpg)
+
+##### Visualizing classes
+Here's one way to visualize what YOLO is predicting on an image:
+
+- For each of the 19x19 grid cells, find the maximum of the probability scores (taking a max across the 80 classes, one maximum for each of the 5 anchor boxes).
+- Color that grid cell according to what object that grid cell considers the most likely.
+
+Doing this results in this picture: 
+
+![image-20210620180553837](https://tva1.sinaimg.cn/large/008i3skNgy1grow3pkl4rj319a0dcgty.jpg)
+
+Note that this visualization isn't a core part of the YOLO algorithm itself for making predictions; it's just a nice way of visualizing an intermediate result of the algorithm. 
+
+##### Visualizing bounding boxes
+Another way to visualize YOLO's output is to plot the bounding boxes that it outputs. Doing that results in a visualization like this:  
+
+![image-20210620180823790](https://tva1.sinaimg.cn/large/008i3skNgy1grow6au07oj31ic0e416i.jpg)
+
+##### Non-Max suppression
+In the figure above, the only boxes plotted are ones for which the model had assigned a high probability, but this is still too many boxes. You'd like to reduce the algorithm's output to a much smaller number of detected objects.  
+
+To do so, you'll use **non-max suppression**. Specifically, you'll carry out these steps: 
+- Get rid of boxes with a low score. Meaning, the box is not very confident about detecting a class, either due to the low probability of any object, or low probability of this particular class.
+- Select only one box when several boxes overlap with each other and detect the same object.
+
+The model gives you a total of 19x19x5x85 numbers, with each box described by 85 numbers. It's convenient to rearrange the (19,19,5,85) (or (19,19,425)) dimensional tensor into the following variables:  
+- `box_confidence`: tensor of shape $(19, 19, 5, 1)$ containing $p_c$ (confidence probability that there's some object) for each of the 5 boxes predicted in each of the 19x19 cells.
+- `boxes`: tensor of shape $(19, 19, 5, 4)$ containing the midpoint and dimensions $(b_x, b_y, b_h, b_w)$ for each of the 5 boxes in each cell.
+- `box_class_probs`: tensor of shape $(19, 19, 5, 80)$ containing the "class probabilities" $(c_1, c_2, ... c_{80})$ for each of the 80 classes for each of the 5 boxes per cell.
+
+![image-20210620190704070](https://tva1.sinaimg.cn/large/008i3skNgy1groxvd88inj31ii0f6kef.jpg)
+
+
+
+
+
+
+
+
+
+#### Region proposal: R-CNN
+
+![image-20210620145137605](https://tva1.sinaimg.cn/large/008i3skNgy1groqhkckwtj31340joe0l.jpg)
+
+**R-CNN**
+
+Propose regions. Classify proposed regions one at a time. Output label + bounding box.
+
+**Fast R-CNN**
+
+Propose regions. Use convolution implementation of sliding windows to classify all the proposed regions.
+
+**Faster R-CNN**
+
+Use convolutional network to propose regions.
+
+### Semantic Segmentation
+
+![image-20210620150100741](https://tva1.sinaimg.cn/large/008i3skNgy1groqrc6np8j311g0fwqgf.jpg)
+
+**U-Net**
+
+![image-20210620150557342](https://tva1.sinaimg.cn/large/008i3skNgy1groqwgxkkrj312s0fmgyz.jpg)
+
+#### Transpose Convolutions
+
+![image-20210620151546275](https://tva1.sinaimg.cn/large/008i3skNgy1gror6p04o9j30x60j8wpa.jpg)
+
+#### U-Net Architecture
+
+U-Net builds on a previous architecture called the Fully Convolutional Network, or FCN, which replaces the dense layers found in a typical CNN with a transposed convolution layer that upsamples the feature map back to the size of the original input image, while preserving the spatial information. This is necessary because the dense layers destroy spatial information (the "where" of the image), which is an essential part of image segmentation tasks. An added bonus of using transpose convolutions is that the input size no longer needs to be fixed, as it does when dense layers are used.
+
+Unfortunately, the final feature layer of the FCN suffers from information loss due to downsampling too much. It then becomes difficult to upsample after so much information has been lost, causing an output that looks rough.
+
+U-Net improves on the FCN, using a somewhat similar design, but differing in some important ways. Instead of one transposed convolution at the end of the network, it uses a matching number of convolutions for downsampling the input image to a feature map, and **transposed convolutions** for upsampling those maps back up to the original input image size. It also adds **skip connections**, to retain information that would otherwise become lost during encoding. Skip connections send information to every upsampling layer in the decoder from the corresponding downsampling layer in the encoder, capturing finer information while also keeping computation low. These help prevent information loss, as well as model overfitting.
+
+![image-20210620152900576](https://tva1.sinaimg.cn/large/008i3skNgy1grorkgqlllj312i0kg481.jpg)
+
+##### Encoder
+
+The encoder is a stack of various conv_blocks:
+
+Each `conv_block()` is composed of 2 **Conv2D** layers  with ReLU activations.
+
+<img src="https://tva1.sinaimg.cn/large/008i3skNgy1grp18j6j4dj30py0iotf4.jpg" alt="image-20210620210331805" style="zoom: 50%;" />
+
+##### Decoder
+
+The decoder, or upsampling block, upsamples the features back to the original image size. At each upsampling level, you'll take the output of the corresponding encoder block and concatenate it before feeding to the next decoder block.
+
+<img src="https://tva1.sinaimg.cn/large/008i3skNgy1grp1ceip4bj30s40fcada.jpg" alt="image-20210620210715479" style="zoom:50%;" />
