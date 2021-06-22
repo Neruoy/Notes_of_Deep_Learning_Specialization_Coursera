@@ -1453,3 +1453,174 @@ Each `conv_block()` is composed of 2 **Conv2D** layers  with ReLU activations.
 The decoder, or upsampling block, upsamples the features back to the original image size. At each upsampling level, you'll take the output of the corresponding encoder block and concatenate it before feeding to the next decoder block.
 
 <img src="https://tva1.sinaimg.cn/large/008i3skNgy1grp1ceip4bj30s40fcada.jpg" alt="image-20210620210715479" style="zoom:50%;" />
+
+### Face Recognition
+
+![image-20210621002029510](https://tva1.sinaimg.cn/large/008i3skNgy1grp6xh3o7sj31380luduu.jpg)
+
+#### One-shot learning
+
+Learning from **one example** to recognize the person again. The method is learn a `similarity function`.
+$$
+d(\text{img1},\text{img2})=\text{degree of difference between images}
+$$
+If $d(\text{img1},\text{img2})≤\tau\to\text{'same'}$, $d(\text{img1},\text{img2})>\tau\to\text{'diff'}$
+
+#### Siamese Network
+
+![image-20210621192444487](https://tva1.sinaimg.cn/large/008i3skNgy1grq403f47lj310y0k4aj7.jpg)
+
+#### Triplet loss
+
+For an image $x$, its encoding is denoted as $f(x)$, where $f$ is the function computed by the neural network.
+
+<img src="https://tva1.sinaimg.cn/large/008i3skNgy1grqa5qya8kj30m209a0ud.jpg" alt="image-20210621225748132" style="zoom:50%;" />
+
+![image-20210621193709928](https://tva1.sinaimg.cn/large/008i3skNgy1grq4czbrjuj31360lm1ay.jpg)
+
+Training will use triplets of images $(A, P, N)$:
+
+- A is an "Anchor" image--a picture of a person.
+- P is a "Positive" image--a picture of the same person as the Anchor image.
+- N is a "Negative" image--a picture of a different person than the Anchor image.
+
+These triplets are picked from the training dataset. $(A^{(i)}, P^{(i)}, N^{(i)})$ is used here to denote the $i$-th training example.
+
+You'd like to make sure that an image $A^{(i)}$ of an individual is closer to the Positive $P^{(i)}$ than to the Negative image $N^{(i)}$ by at least a margin $\alpha$:
+
+$$
+|| f\left(A^{(i)}\right)-f\left(P^{(i)}\right)||_{2}^{2}+\alpha<|| f\left(A^{(i)}\right)-f\left(N^{(i)}\right)||_{2}^{2}
+$$
+
+
+You would thus like to minimize the following "triplet cost":
+
+$$
+\mathcal{J} = \sum^{m}_{i=1} \large[ \small \underbrace{\mid \mid f(A^{(i)}) - f(P^{(i)}) \mid \mid_2^2}_\text{(1)} - \underbrace{\mid \mid f(A^{(i)}) - f(N^{(i)}) \mid \mid_2^2}_\text{(2)} + \alpha \large ] \small_+
+$$
+Here, the notation "$[z]_+$" is used to denote $max(z,0)$.
+
+**Notes**:
+
+- The term (1) is the squared distance between the anchor "A" and the positive "P" for a given triplet; you want this to be small.
+- The term (2) is the squared distance between the anchor "A" and the negative "N" for a given triplet, you want this to be relatively large. It has a minus sign preceding it because minimizing the negative of the term is the same as maximizing that term.
+- $\alpha$ is called the margin. It's a hyperparameter that you pick manually. e.g. $\alpha = 0.2$.
+
+Training set: 10k pictures of 1k persons -- Take 10k pictures and use it to generate the treplets $(A, P, N)$.
+
+#### **Choosing the triplets $A,P,N$**
+
+During training, if $A,P,N$ are chosen **randomly**, $d(A,P)+\alpha≤d(A,N)$ is **easily satisfied**.
+
+Choose triplets that are "hard" to train on.
+$$
+d(A,P)\approx d(A,N)
+$$
+
+#### Face Verification and Binary Classification
+
+![image-20210621200039246](https://tva1.sinaimg.cn/large/008i3skNgy1grq51f5hr4j313e0luatw.jpg)
+
+**What you should remember**:
+
+- Face verification solves an easier 1:1 matching problem; face recognition addresses a harder 1:K matching problem.
+  
+- Triplet loss is an effective loss function for training a neural network to learn an encoding of a face image.
+  
+- The same encoding can be used for verification and recognition. Measuring distances between two images' encodings allows you to determine whether they are pictures of the same person.
+
+### Neural Style Transfer
+
+![image-20210621200449344](https://tva1.sinaimg.cn/large/008i3skNgy1grq55rdzg2j313e0k6qrn.jpg)
+
+#### Cost function
+
+$$
+J(G) = \alpha J_{content}(C,G) + \beta J_{style}(S,G)
+$$
+
+Where $J_{content}(C,G)$ measures how similar is the content of the generated image $G$, to the content fo the content image $C$, $J_{style}(C,G)$ measures how similar is the style of the generated image $G$, to the style fo the style image $S$.
+
+**Find the generated image $G$**
+
+1. Initialize $G$ randomly.
+
+$$
+G:100\times100\times3
+$$
+
+2. Use gradient descent to minimize $J(G)$.
+
+$$
+G := G - \frac{\partial}{\partial G}J(G)
+$$
+
+#### Content cost function
+
+Recap the cost function:
+$$
+J(G) = \alpha J_{content}(C,G) + \beta J_{style}(S,G)
+$$
+
+- Say you use hidden layer $l$ to compute content cost.
+- Use pre-trained ConvNet.
+- Let $a^{[l](C)}$ and $a^{[l](G)}$ be the activation of layer $l$ one the images
+- If $a^{[l](C)}$ and $a^{[l](G)}$ are similar, both images have similar content
+
+$$
+J_{content}(C,G)=\frac{1}{2}\|a^{[l](C)} - a^{[l](G)} \|^2
+$$
+
+#### Style cost function
+
+Define style as **correlation** between activations across channels.
+
+##### Style matrix (Gram matrix)
+
+* The style matrix is also called a "Gram matrix." 
+* In linear algebra, the Gram matrix G of a set of vectors $(v_{1},\dots ,v_{n})$ is the matrix of dot products, whose entries are ${\displaystyle G_{ij} = v_{i}^T v_{j} = np.dot(v_{i}, v_{j})  }$. 
+* In other words, $G_{ij}$ compares how similar $v_i$ is to $v_j$: If they are highly similar, you would expect them to have a large dot product, and thus for $G_{ij}$ to be large. 
+
+Let $a^{[l]}_{i,j,k}=\text{activation at }(i,j,k)$. $G^{[l]}$ is $n_c^{[l]}\times n_c^{[l]}$. Particularly, $G^{[l]}_{kk'}$ will measure how correlated are the activations in channel $k$ compared to the activations in channel $k'$.
+$$
+G^{[l](S)}_{kk'}=\sum_i^{n_H^{[l]}} \sum_j^{n_W^{[l]}} a^{[l](S)}_{i,j,k} a^{[l](S)}_{i,j,k'}\\
+G^{[l](G)}_{kk'}=\sum_i^{n_H^{[l]}} \sum_j^{n_W^{[l]}} a^{[l](G)}_{i,j,k} a^{[l](G)}_{i,j,k'}
+$$
+
+$$
+\begin{align}
+J_{style}^{[l]}(S,G) &= \frac{1}{(2n_H^{[l]}n_W^{[l]}n_C^{[l]})^2}\|G^{[l](S)}-G^{[l](G)}\|^2_F\\
+                     &= \frac{1}{(2n_H^{[l]}n_W^{[l]}n_C^{[l]})^2}\sum_k \sum_{k'}(G^{[l](S)}_{kk'}-G^{[l](G)}_{kk'})^2
+\end{align}
+$$
+
+
+$$
+J_{style}(S,G)=\sum_{l}\lambda^{[l]}J_{style}^{[l]}(S,G)
+$$
+
+##### Compute Gram matrix $G_{gram}$
+You will compute the Style matrix by multiplying the "unrolled" filter matrix with its transpose:
+
+![image-20210622222715919](https://tva1.sinaimg.cn/large/008i3skNgy1grrewbyhn6j31fi0ho4qp.jpg)
+
+###### $G_{(gram)ij}$: correlation
+The result is a matrix of dimension $(n_C,n_C)$ where $n_C$ is the number of filters (channels). The value $G_{(gram)i,j}$ measures how similar the activations of filter $i$ are to the activations of filter $j$. 
+
+###### $G_{(gram),ii}$: prevalence of patterns or textures
+* The diagonal elements $G_{(gram)ii}$ measure how "active" a filter $i$ is. 
+* For example, suppose filter $i$ is detecting vertical textures in the image. Then $G_{(gram)ii}$ measures how common  vertical textures are in the image as a whole.
+* If $G_{(gram)ii}$ is large, this means that the image has a lot of vertical texture. 
+
+By capturing the prevalence of different types of features ($G_{(gram)ii}$), as well as how much different features occur together ($G_{(gram)ij}$), the Style matrix $G_{gram}$ measures the style of an image. 
+
+> Neural style transfer is trained as a supervised learning task in which the goal is to input two images (x*x*), and train a network to output a new, synthesized image (y*y*). 
+>
+> `FALSE:` **Neural style transfer is about training on the pixels of an image to make it look artistic, it is `not learning` any parameters**.
+
+### 1D and 3D Generalizations
+
+![image-20210621214852496](https://tva1.sinaimg.cn/large/008i3skNgy1grq860sx0hj31300loto2.jpg)
+
+![image-20210621215256129](https://tva1.sinaimg.cn/large/008i3skNgy1grq8a8yqcxj312g0j07bx.jpg)
+
