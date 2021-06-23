@@ -1564,8 +1564,8 @@ $$
 
 - Say you use hidden layer $l$ to compute content cost.
 - Use pre-trained ConvNet.
-- Let $a^{[l](C)}$ and $a^{[l](G)}$ be the activation of layer $l$ one the images
-- If $a^{[l](C)}$ and $a^{[l](G)}$ are similar, both images have similar content
+- Let $a^{[l](C)}$ and $a^{[l](G)}$ be the activation of layer $l$ one the images.
+- If $a^{[l](C)}$ and $a^{[l](G)}$ are similar, both images have similar content.
 
 $$
 J_{content}(C,G)=\frac{1}{2}\|a^{[l](C)} - a^{[l](G)} \|^2
@@ -1577,7 +1577,7 @@ Define style as **correlation** between activations across channels.
 
 ##### Style matrix (Gram matrix)
 
-* The style matrix is also called a "Gram matrix." 
+* The style matrix is also called a "Gram matrix" .
 * In linear algebra, the Gram matrix G of a set of vectors $(v_{1},\dots ,v_{n})$ is the matrix of dot products, whose entries are ${\displaystyle G_{ij} = v_{i}^T v_{j} = np.dot(v_{i}, v_{j})  }$. 
 * In other words, $G_{ij}$ compares how similar $v_i$ is to $v_j$: If they are highly similar, you would expect them to have a large dot product, and thus for $G_{ij}$ to be large. 
 
@@ -1624,3 +1624,183 @@ By capturing the prevalence of different types of features ($G_{(gram)ii}$), as 
 
 ![image-20210621215256129](https://tva1.sinaimg.cn/large/008i3skNgy1grq8a8yqcxj312g0j07bx.jpg)
 
+## Sequence Model
+
+![image-20210623011329150](https://tva1.sinaimg.cn/large/008i3skNgy1grrjp84c0rj61380lmh1z02.jpg)
+
+### Notation
+
+$x^{(i)<t>}$: the $t^{th}$ element in the sequence of training example $i$.
+
+$T^{(i)}_x$: the input sequence length for training example $i$.
+
+$T^{(i)}_y$: the output sequence length for training example $i$.
+
+![image-20210623210654210](https://tva1.sinaimg.cn/large/008i3skNgy1grsi71eetqj313i0ls7hi.jpg)
+
+### Recurrent Neural Network Model
+
+![image-20210623212106282](https://tva1.sinaimg.cn/large/008i3skNgy1grsilqtpw1j31220eck3n.jpg)
+
+When making the prediction for $y_3$, it gets the information **not only from** $x_3$ **but also the information from $x_1$ and $x_2$.**
+
+One weakness of RNN is that it only uses the information that is **earlier** in the sequence to male prediction.
+
+#### Forward Propagation
+
+![image-20210623213218643](https://tva1.sinaimg.cn/large/008i3skNgy1grsixeaor2j30xg0digsc.jpg)
+
+Initialize $a^{<0>}=\vec{0}$.
+
+Then,
+$$
+a^{<1>}=g(W_{aa}a^{<0>}+W_{ax}x^{<1>}+b_a) \leftarrow \tanh(/\text{ReLU})\\
+\hat y^{<1>}=g(W_{ya}a^{<1>}+b_y)\leftarrow \text{depends on tasks}
+$$
+Generally,
+$$
+a^{<t>}=g(W_{aa}a^{<t-1>}+W_{ax}x^{<t>}+b_a)\\
+\hat y^{<t>}=g(W_{ya}a^{<t>}+b_y)
+$$
+
+#### Simplified RNN notation
+
+$$
+\large a^{<t>}=g(W_{a}[a^{<t-1>},x^{<t>}]+b_a)\\
+\large \hat y^{<t>}=g(W_{y}a^{<t>}+b_y)
+$$
+
+where
+$$
+W_a=\begin{bmatrix}
+W_{aa}|W_{ax}
+\end{bmatrix}\\
+[a^{<t-1>},x^{<t>}]=\begin{bmatrix}
+a^{<t-1>} \\ x^{<t>}
+\end{bmatrix}
+$$
+So that,
+$$
+\begin{bmatrix}
+W_{aa}|W_{ax}
+\end{bmatrix}
+\begin{bmatrix}
+a^{<t-1>} \\ x^{<t>}
+\end{bmatrix}
+=W_{aa}a^{<t-1>}+W_{ax}x^{<t>}
+$$
+
+### Backpropagation Through Time
+
+$$
+L^{<t>}(\hat y^{<t>},y^{<t>})=-y^{<t>}\log {\hat y^{<t>}-(1-y^{<y>})\log (1-\hat y^{<t>})}\\
+L(\hat y, y)=\sum_{t=1}^{T_y}L^{<t>}(\hat y^{<t>},y^{<t>})
+$$
+
+### Different Types of RNNs
+
+![image-20210623220642100](https://tva1.sinaimg.cn/large/008i3skNgy1grsjx6urd0j31360lkdpl.jpg)
+
+### Language Model and Sequence Generation
+
+![image-20210623221333133](https://tva1.sinaimg.cn/large/008i3skNgy1grsk4bdw71j30v80i0wmb.jpg)
+
+`The probability of sentence:` the chance that the next sentence you read somewhere out there in the world will be the particular sentence.
+
+The language model represent a sentences as `outputs y` rather than `inputs x`.
+
+The **basic job** of a language model is to estimate the probability of the particular input sequences of words. 
+
+![image-20210623221746427](https://tva1.sinaimg.cn/large/008i3skNgy1grsk8plf4aj31320lids5.jpg)
+
+`Corpus:` an NLP terminology that just means a large body or a large set of sentences.
+
+`Tokenize:` form a vocabulary and map each of words in the sentence to **one-hot vectors** or **indicies** in the vocabulary. By tokenization step, you can decide whether or not the **punctuation** should be token as well.
+
+`<EOS>:`"End Of Sentence", an **optional** extra token that can help to figure out when a sentence ends.
+
+`<UNK>:` a unique token stands for **unknown** words.
+
+![image-20210623222532205](https://tva1.sinaimg.cn/large/008i3skNgy1grskgs7u9yj313a0luk8t.jpg)
+
+Each step in the RNN will look at some set of preceding words, such as given the first three words, what is the distribution over the next word? So this learns to predict **one word at a time** going from left to right.
+
+The loss function:
+$$
+L(\hat y^{<t>},y^{<t>})=-\sum y_i^{<t>}\log \hat y^{<t>}_i \leftarrow \text{softmax loss}\\
+L=\sum_t L^{<t>}(\hat y^{<t>},y^{<t>})
+$$
+Given a new sentence $(y^{<1>},y^{<2>},y^{<3>})$, the chance of this entire sentence would be:
+$$
+P(y^{<1>},y^{<2>},y^{<3>})=P(y^{<1>})P(y^{<2>}|y^{<1>})P(y^{<3>}|y^{<2>}，y^{<1>})
+$$
+
+### Sampling Novel Sequences
+
+![image-20210623223527062](https://tva1.sinaimg.cn/large/008i3skNgy1grskr3qqy1j31360loaoq.jpg)
+
+**what you want to do:**
+
+1. Randomly sample first word $\hat y^{<1>}$ according to the first softmax distribution.
+
+```python
+np.random.choice() # To sample according to distribution
+```
+
+2. Going to next time step, take the $\hat y^{<1>}$ which is just sampled as the input to the next time step and sample $\hat y^{<2>}$.
+3. Repeat 1 $\to$ 2 until get the last time step (such as when `<EOS>` token is sampled or just decide how many words to sample).
+
+![image-20210623223809791](https://tva1.sinaimg.cn/large/008i3skNgy1grsktxb0w7j31300lwgvd.jpg)
+
+**Pros and cons of Character-level language model**
+
+1. Don't have to worry about unknown word tokens.
+2. End up with much longer sequences (computational expensive).
+
+### Vanishing Gradients with RNNs
+
+![image-20210623225444375](https://tva1.sinaimg.cn/large/008i3skNgy1grslb6gge1j312y0lwarf.jpg)
+
+Because of vanishing gradients, the basic RNN model has many **local influences**, meaning that the output $y^{<t>}$ is mainly influenced by values close to $y^{<t>}$, so is difficult for it to be strongly influenced by an input that was **very early** in the sequence.
+
+### Gated Recurrent Unit (GRU)
+
+![image-20210623225756573](https://tva1.sinaimg.cn/large/008i3skNgy1grslei1q87j30zq0hejw5.jpg)
+
+![image-20210624023518376](https://tva1.sinaimg.cn/large/008i3skNgy1grsroo5yzgj313m0m2e2h.jpg)
+
+`c:memory cell` will provide a bit of to remember the important information.
+
+The memory cell will have some value $c^{<t>}$ at time $t$. The GRU will out put an activation value $a^{<t>}$ that is equal to $c^{<t>}$.
+$$
+c^{<t>}=a^{<t>}
+$$
+At every time step, we are going to **consider** overwritting the memory cell with a `candidate` $\tilde c^{<t>}$ for replacing $c^{<t>}$.
+$$
+\tilde c^{<t>}=\tanh (W_c[c^{<t-1>},x^{t}]+b_c)
+$$
+The key idea of GRU is to have a `update gate`
+$$
+\Gamma_u = \sigma(W_u[c^{<t-1>},x^{t}]+b_u)
+$$
+The job of gate $\Gamma_u$ is to decide when do you update memory cell.
+
+The specific equation for GRU is
+$$
+c^{<t>}=\Gamma_u * \tilde c^{<t>} + (1-\Gamma_u)*c^{<t-1>}
+$$
+Because the gate is easliy to be set to 0, it is cery good at **maintaining** the value for the cell. And because the gate can be so close to 0, it does not suffer from vanishing gradient problems.
+
+#### **Full GRU**
+
+<img src="https://tva1.sinaimg.cn/large/008i3skNgy1grsrvgx8jaj30wm0juq8e.jpg" alt="image-20210624024150843" style="zoom: 50%;" />
+
+For full GRU, there is an additional gate $\Gamma_r$.
+$$
+\begin{align}
+\tilde c^{<t>}&=\tanh (W_c[\Gamma_r * c^{<t-1>},x^{t}]+b_c)\\
+\Gamma_r &= \sigma(W_r[c^{<t-1>},x^{t}]+b_r)\\
+\Gamma_u &= \sigma(W_u[c^{<t-1>},x^{t}]+b_u)\\
+c^{<t>}&=\Gamma_u * \tilde c^{<t>} + (1-\Gamma_u)*c^{<t-1>}
+\end{align}
+$$
