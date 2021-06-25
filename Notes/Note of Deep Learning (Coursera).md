@@ -1630,11 +1630,17 @@ By capturing the prevalence of different types of features ($G_{(gram)ii}$), as 
 
 ### Notation
 
-$x^{(i)<t>}$: the $t^{th}$ element in the sequence of training example $i$.
+- Superscript $[l]$ denotes an object associated with the $l^{th}$ layer. 
+- Superscript $(i)$ denotes an object associated with the $i^{th}$ example. 
+- Superscript $\langle t \rangle$ denotes an object at the $t^{th}$ time 
+step. 
+- Subscript $i$ denotes the $i^{th}$ entry of a vector.
+- $T^{(i)}_x$: the input sequence length for training example $i$.
+- $T^{(i)}_y$: the output sequence length for training example $i$.
 
-$T^{(i)}_x$: the input sequence length for training example $i$.
+**Example**:  
 
-$T^{(i)}_y$: the output sequence length for training example $i$.
+- $a^{(2)[3]<4>}_5$ denotes the activation of the 2nd training example (2), 3rd layer [3], 4th time step <4>, and 5th entry in the vector.
 
 ![image-20210623210654210](https://tva1.sinaimg.cn/large/008i3skNgy1grsi71eetqj313i0ls7hi.jpg)
 
@@ -1735,6 +1741,131 @@ $$
 P(y^{<1>},y^{<2>},y^{<3>})=P(y^{<1>})P(y^{<2>}|y^{<1>})P(y^{<3>}|y^{<2>}，y^{<1>})
 $$
 
+### Implement RNN
+
+#### Dimensions of input $x$
+
+##### Input with $n_x$ number of units
+* For a single time step of a single input example, $x^{(i) \langle t \rangle }$ is a one-dimensional input vector
+* Using language as an example, a language with a 5000-word vocabulary could be one-hot encoded into a vector that has 5000 units.  So $x^{(i)\langle t \rangle}$ would have the shape (5000,)  
+* The notation $n_x$ is used here to denote the number of units in a single time step of a single training example
+
+##### Time steps of size $T_{x}$
+* A recurrent neural network has multiple time steps, which you'll index with $t$.
+* In the lessons, you saw a single training example $x^{(i)}$ consisting of multiple time steps $T_x$. In this notebook, $T_{x}$ will denote the number of timesteps in the longest sequence.
+
+##### Batches of size $m$
+* Let's say we have mini-batches, each with 20 training examples  
+* To benefit from vectorization, you'll stack 20 columns of $x^{(i)}$ examples
+* For example, this tensor has the shape (5000,20,10) 
+* You'll use $m$ to denote the number of training examples  
+* So, the shape of a mini-batch is $(n_x,m,T_x)$
+
+#### Definition of hidden state $a$
+
+* The activation $a^{\langle t \rangle}$ that is passed to the RNN from one time step to another is called a "hidden state."
+
+#### Dimensions of hidden state $a$
+
+* Similar to the input tensor $x$, the hidden state for a single training example is a vector of length $n_{a}$
+* If you include a mini-batch of $m$ training examples, the shape of a mini-batch is $(n_{a},m)$
+* When you include the time step dimension, the shape of the hidden state is $(n_{a}, m, T_x)$
+* You'll loop through the time steps with index $t$, and work with a 2D slice of the 3D tensor  
+* This 2D slice is referred to as $a^{\langle t \rangle}$
+
+#### Dimensions of prediction $\hat{y}$
+* Similar to the inputs and hidden states, $\hat{y}$ is a 3D tensor of shape $(n_{y}, m, T_{y})$
+    * $n_{y}$: number of units in the vector representing the prediction
+    * $m$: number of examples in a mini-batch
+    * $T_{y}$: number of time steps in the prediction
+* For a single time step $t$, a 2D slice $\hat{y}^{\langle t \rangle}$ has shape $(n_{y}, m)$
+
+#### Steps:
+1. Implement the calculations needed for one time step of the RNN.
+2. Implement a loop over $T_x$ time steps in order to process all the inputs, one at a time. 
+
+#### RNN Cell
+
+![image-20210624224852839](https://tva1.sinaimg.cn/large/008i3skNgy1grtqrds1puj31iq0jg0ww.jpg)
+
+**`RNN cell` versus `RNN_cell_forward`**:
+
+* Note that an RNN cell outputs the hidden state $a^{\langle t \rangle}$.  
+    * `RNN cell` is shown in the figure as the inner box with solid lines  
+* The function that you'll implement, `rnn_cell_forward`, also calculates the prediction $\hat{y}^{\langle t \rangle}$
+    * `RNN_cell_forward` is shown in the figure as the outer box with dashed lines
+
+#### RNN Forward Pass 
+
+![image-20210624230125687](https://tva1.sinaimg.cn/large/008i3skNgy1grtr4ftbibj31gi0c2ae4.jpg)
+
+- A recurrent neural network (RNN) is a repetition of the RNN cell. 
+    - If your input sequence of data is 10 time steps long, then you will re-use the RNN cell 10 times 
+- Each cell takes two inputs at each time step:
+    - $a^{\langle t-1 \rangle}$: The hidden state from the previous cell
+    - $x^{\langle t \rangle}$: The current time step's input data
+- It has two outputs at each time step:
+    - A hidden state ($a^{\langle t \rangle}$)
+    - A prediction ($y^{\langle t \rangle}$)
+- The weights and biases $(W_{aa}, b_{a}, W_{ax}, b_{x})$ are re-used each time step 
+    - They are maintained between calls to `rnn_cell_forward` in the 'parameters' dictionary
+
+**Instructions**:
+* Create a 3D array of zeros, $a$ of shape $(n_{a}, m, T_{x})$ that will store all the hidden states computed by the RNN
+* Create a 3D array of zeros, $\hat{y}$, of shape $(n_{y}, m, T_{x})$ that will store the predictions  
+    - Note that in this case, $T_{y} = T_{x}$ (the prediction and input have the same number of time steps)
+* Initialize the 2D hidden state `a_next` by setting it equal to the initial hidden state, $a_{0}$
+* At each time step $t$:
+    - Get $x^{\langle t \rangle}$, which is a 2D slice of $x$ for a single time step $t$
+        - $x^{\langle t \rangle}$ has shape $(n_{x}, m)$
+        - $x$ has shape $(n_{x}, m, T_{x})$
+    - Update the 2D hidden state $a^{\langle t \rangle}$, the prediction $\hat{y}^{\langle t \rangle}$ and the cache by running `rnn_cell_forward`
+        - $a^{\langle t \rangle}$ has shape $(n_{a}, m)$
+    - Store the 2D hidden state in the 3D tensor $a$, at the $t^{th}$ position
+        - $a$ has shape $(n_{a}, m, T_{x})$
+    - Store the 2D $\hat{y}^{\langle t \rangle}$ prediction in the 3D tensor $\hat{y}_{pred}$ at the $t^{th}$ position
+        - $\hat{y}^{\langle t \rangle}$ has shape $(n_{y}, m)$
+        - $\hat{y}$ has shape $(n_{y}, m, T_x)$
+    - Append the cache to the list of caches
+* Return the 3D tensor $a$ and $\hat{y}$, as well as the list of caches
+
+**What you should remember:**
+* The recurrent neural network, or RNN, is essentially the repeated use of a single cell.
+* A basic RNN reads inputs one at a time, and remembers information through the hidden layer activations (hidden states) that are passed from one time step to the next.
+    * The time step dimension determines how many times to re-use the RNN cell
+* Each cell takes two inputs at each time step:
+    * The hidden state from the previous cell
+    * The current time step's input data
+* Each cell has two outputs at each time step:
+    * A hidden state 
+    * A prediction
+
+#### Basic RNN Backward Pass
+
+![image-20210625003914521](https://tva1.sinaimg.cn/large/008i3skNgy1grtty7eb7wj31ie0ks437.jpg)
+
+![image-20210625004037626](https://tva1.sinaimg.cn/large/008i3skNgy1grttznkhvlj31ea0u0dm6.jpg)
+
+##### Equations
+To compute `rnn_cell_backward`, you can use the following equations. Here, $*$ denotes element-wise multiplication while the absence of a symbol indicates matrix multiplication.
+$$
+\begin{align}
+\displaystyle a^{\langle t \rangle} &= \tanh(W_{ax} x^{\langle t \rangle} + W_{aa} a^{\langle t-1 \rangle} + b_{a})\tag{-} \\[8pt]
+\displaystyle \frac{\partial \tanh(x)} {\partial x} &= 1 - \tanh^2(x) \tag{-} \\[8pt]
+\displaystyle {dtanh} &= da_{next} * ( 1 - \tanh^2(W_{ax}x^{\langle t \rangle}+W_{aa} a^{\langle t-1 \rangle} + b_{a})) \tag{0} \\[8pt]
+\displaystyle  {dW_{ax}} &= dtanh \cdot x^{\langle t \rangle T}\tag{1} \\[8pt]
+\displaystyle dW_{aa} &= dtanh \cdot a^{\langle t-1 \rangle T}\tag{2} \\[8pt]
+\displaystyle db_a& = \sum_{batch}dtanh\tag{3} \\[8pt]
+\displaystyle dx^{\langle t \rangle} &= { W_{ax}}^T \cdot dtanh\tag{4} \\[8pt]
+\displaystyle da_{prev} &= { W_{aa}}^T \cdot dtanh\tag{5}
+\end{align}
+$$
+![image-20210625014504928](https://tva1.sinaimg.cn/large/008i3skNgy1grtvuq3guwj30s70w74b2.jpg)
+
+Check note about Matrix vector derivatives by CS231n:
+
+ [vecDerivs.pdf](vecDerivs.pdf) 
+
 ### Sampling Novel Sequences
 
 ![image-20210623223527062](https://tva1.sinaimg.cn/large/008i3skNgy1grskr3qqy1j31360loaoq.jpg)
@@ -1751,6 +1882,8 @@ np.random.choice() # To sample according to distribution
 3. Repeat 1 $\to$ 2 until get the last time step (such as when `<EOS>` token is sampled or just decide how many words to sample).
 
 ![image-20210623223809791](https://tva1.sinaimg.cn/large/008i3skNgy1grsktxb0w7j31300lwgvd.jpg)
+
+![image-20210625203005230](https://tva1.sinaimg.cn/large/008i3skNgy1grusda2ccvj31g20ia0xd.jpg)
 
 **Pros and cons of Character-level language model**
 
@@ -1798,9 +1931,276 @@ Because the gate is easliy to be set to 0, it is cery good at **maintaining** th
 For full GRU, there is an additional gate $\Gamma_r$.
 $$
 \begin{align}
+a^{<t>} &= c^{<t>}\\
 \tilde c^{<t>}&=\tanh (W_c[\Gamma_r * c^{<t-1>},x^{t}]+b_c)\\
 \Gamma_r &= \sigma(W_r[c^{<t-1>},x^{t}]+b_r)\\
 \Gamma_u &= \sigma(W_u[c^{<t-1>},x^{t}]+b_u)\\
 c^{<t>}&=\Gamma_u * \tilde c^{<t>} + (1-\Gamma_u)*c^{<t-1>}
 \end{align}
 $$
+
+### LSTM (Long Short Term Memory) Unit
+
+![image-20210624193507660](https://tva1.sinaimg.cn/large/008i3skNgy1grtl5treqej30jm0cctav.jpg)
+
+Three gates: `update gate`$\Gamma_u$,  `forget gate` $\Gamma_f$, `output gate` $\Gamma_o$
+$$
+\begin{align}
+\tilde c^{<t>} &= \tanh (W_c[a^{<t-1>},x^{<t>}]+b_c)\\
+\Gamma_u &= \sigma(W_u[a^{<t-1>},x^{t}]+b_u)\leftarrow \text{update}\\
+\Gamma_f &= \sigma(W_f[a^{<t-1>},x^{t}]+b_f)\leftarrow \text{forget}\\
+\Gamma_o &= \sigma(W_o[a^{<t-1>},x^{t}]+b_o)\leftarrow \text{output}\\
+c^{<t>} &= \Gamma_u*\tilde c^{<t>} + \Gamma_f * c^{<t-1>}\\
+a^{<t>} &= \Gamma_o * \tanh (c^{<t>})
+\end{align}
+$$
+![image-20210624193806120](https://tva1.sinaimg.cn/large/008i3skNgy1grtl8vjacpj313208cdk4.jpg)
+
+Notice that, there is a line at the top shows that so long as you set the **forget** and the **update** gate appropriately, it is **relatively easy** for the LSTM to have some value $c_0$ to be passed all the way the right to have $c_3=c_0$. This is why LSTM, as well as the GRU, is very good at memorizing certain values even for a long time.
+
+**Peephole LSTM**
+
+![image-20210624194613217](https://tva1.sinaimg.cn/large/008i3skNgy1grtlhbjuxej31380lm1a0.jpg)
+
+**LSTM and GRU**
+
+- The advantage of the GRU is that it is a **simpler** model, so it is actually easier to build a much bigger network.
+- LSTM is more **powerful** and more **effective** since it has three gates.
+
+### Details of LSTM
+
+The following figure shows the operations of an LSTM cell:
+
+![image-20210624231511006](https://tva1.sinaimg.cn/large/008i3skNgy1grtrir8mvej31j40p6q7q.jpg)
+
+#### Forget gate $\mathbf{\Gamma}_{f}$
+
+* Let's assume you are reading words in a piece of text, and plan to use an LSTM to keep track of grammatical structures, such as whether the subject is singular ("puppy") or plural ("puppies"). 
+* If the subject changes its state (from a singular word to a plural word), the memory of the previous state becomes outdated, so you'll "forget" that outdated state.
+* The "forget gate" is a tensor containing values between 0 and 1.
+    * If a unit in the forget gate has a value close to 0, the LSTM will "forget" the stored state in the corresponding unit of the previous cell state.
+    * If a unit in the forget gate has a value close to 1, the LSTM will mostly remember the corresponding value in the stored state.
+
+##### Equation
+
+$$
+\mathbf{\Gamma}_f^{\langle t \rangle} = \sigma(\mathbf{W}_f[\mathbf{a}^{\langle t-1 \rangle}, \mathbf{x}^{\langle t \rangle}] + \mathbf{b}_f)\tag{1}
+$$
+
+##### Explanation of the equation:
+
+* $\mathbf{W_{f}}$ contains weights that govern the forget gate's behavior. 
+* The previous time step's hidden state $[a^{\langle t-1 \rangle}$ and current time step's input $x^{\langle t \rangle}]$ are concatenated together and multiplied by $\mathbf{W_{f}}$. 
+* A sigmoid function is used to make each of the gate tensor's values $\mathbf{\Gamma}_f^{\langle t \rangle}$ range from 0 to 1.
+* The forget gate  $\mathbf{\Gamma}_f^{\langle t \rangle}$ has the same dimensions as the previous cell state $c^{\langle t-1 \rangle}$. 
+* This means that the two can be multiplied together, element-wise.
+* Multiplying the tensors $\mathbf{\Gamma}_f^{\langle t \rangle} * \mathbf{c}^{\langle t-1 \rangle}$ is like applying a mask over the previous cell state.
+* If a single value in $\mathbf{\Gamma}_f^{\langle t \rangle}$ is 0 or close to 0, then the product is close to 0.
+    * This **keeps** the information stored in the corresponding unit in $\mathbf{c}^{\langle t-1 \rangle}$ **from** being remembered for the next time step. `forget`
+* Similarly, if one value is close to 1, the product is close to the original value in the previous cell state.
+    * The LSTM will **keep** the information from the corresponding unit of $\mathbf{c}^{\langle t-1 \rangle}$, to be used in the next time step. `remember`
+#### Candidate value $\tilde{\mathbf{c}}^{\langle t \rangle}$
+* The candidate value is a tensor containing information from the **current** time step that **may** be stored in the current cell state $\mathbf{c}^{\langle t \rangle}$.
+* The parts of the candidate value that get passed on depend on the update gate.
+* The candidate value is a tensor containing values that range from -1 to 1.
+* The tilde "~" is used to differentiate the candidate $\tilde{\mathbf{c}}^{\langle t \rangle}$ from the cell state $\mathbf{c}^{\langle t \rangle}$.
+
+##### Equation
+$$
+\mathbf{\tilde{c}}^{\langle t \rangle} = \tanh\left( \mathbf{W}_{c} [\mathbf{a}^{\langle t - 1 \rangle}, \mathbf{x}^{\langle t \rangle}] + \mathbf{b}_{c} \right) \tag{3}
+$$
+
+##### Explanation of the equation
+* The $\tanh$ function produces values between -1 and 1.
+
+#### Update gate $\mathbf{\Gamma}_{i}$
+
+* You use the update gate to decide what aspects of the candidate $\tilde{\mathbf{c}}^{\langle t \rangle}$ to add to the cell state $c^{\langle t \rangle}$.
+* The update gate decides what parts of a "candidate" tensor $\tilde{\mathbf{c}}^{\langle t \rangle}$ are passed onto the cell state $\mathbf{c}^{\langle t \rangle}$.
+* The update gate is a tensor containing values between 0 and 1.
+    * When a unit in the update gate is close to 1, it allows the value of the candidate $\tilde{\mathbf{c}}^{\langle t \rangle}$ to be passed onto the hidden state $\mathbf{c}^{\langle t \rangle}$
+    * When a unit in the update gate is close to 0, it prevents the corresponding value in the candidate from being passed onto the hidden state.
+* Notice that the subscript **<u>"i" is used and not "u"</u>**, to follow the convention used in the literature.
+
+##### Equation
+
+$$
+\mathbf{\Gamma}_i^{\langle t \rangle} = \sigma(\mathbf{W}_i[a^{\langle t-1 \rangle}, \mathbf{x}^{\langle t \rangle}] + \mathbf{b}_i)\tag{2}
+$$
+
+##### Explanation of the equation
+
+* Similar to the forget gate, here $\mathbf{\Gamma}_i^{\langle t \rangle}$, the sigmoid produces values between 0 and 1.
+* The update gate is multiplied element-wise with the candidate, and this product ($\mathbf{\Gamma}_{i}^{\langle t \rangle} * \tilde{c}^{\langle t \rangle}$) is used in determining the cell state $\mathbf{c}^{\langle t \rangle}$.
+
+#### Cell state $\mathbf{c}^{\langle t \rangle}$
+
+* The cell state is the "memory" that gets passed onto future time steps.
+* The new cell state $\mathbf{c}^{\langle t \rangle}$ is a **combination** of the <u>previous cell state</u> and the <u>candidate value</u>.
+
+##### Equation
+
+$$
+\mathbf{c}^{\langle t \rangle} = \mathbf{\Gamma}_f^{\langle t \rangle}* \mathbf{c}^{\langle t-1 \rangle} + \mathbf{\Gamma}_{i}^{\langle t \rangle} *\mathbf{\tilde{c}}^{\langle t \rangle} \tag{4}
+$$
+
+##### Explanation of equation
+* The previous cell state $\mathbf{c}^{\langle t-1 \rangle}$ is adjusted (weighted) by the forget gate $\mathbf{\Gamma}_{f}^{\langle t \rangle}$
+* and the candidate value $\tilde{\mathbf{c}}^{\langle t \rangle}$, adjusted (weighted) by the update gate $\mathbf{\Gamma}_{i}^{\langle t \rangle}$
+
+#### Output gate $\mathbf{\Gamma}_{o}$
+
+* The output gate decides what gets sent as the prediction (output) of the time step.
+* The output gate is like the other gates, in that it contains values that range from 0 to 1.
+
+##### Equation
+
+$$
+\mathbf{\Gamma}_o^{\langle t \rangle}=  \sigma(\mathbf{W}_o[\mathbf{a}^{\langle t-1 \rangle}, \mathbf{x}^{\langle t \rangle}] + \mathbf{b}_{o})\tag{5}
+$$
+
+##### Explanation of the equation
+* The output gate is determined by the previous hidden state $\mathbf{a}^{\langle t-1 \rangle}$ and the current input $\mathbf{x}^{\langle t \rangle}$
+* The sigmoid makes the gate range from 0 to 1.
+
+#### Hidden state $\mathbf{a}^{\langle t \rangle}$
+
+* The hidden state gets passed to the LSTM cell's next time step.
+* It is used to determine the three gates ($\mathbf{\Gamma}_{f}, \mathbf{\Gamma}_{u}, \mathbf{\Gamma}_{o}$) of the next time step.
+* The hidden state is also used for the prediction $y^{\langle t \rangle}$.
+
+##### Equation
+
+$$
+\mathbf{a}^{\langle t \rangle} = \mathbf{\Gamma}_o^{\langle t \rangle} * \tanh(\mathbf{c}^{\langle t \rangle})\tag{6}
+$$
+
+##### Explanation of equation
+* The hidden state $\mathbf{a}^{\langle t \rangle}$ is determined by the cell state $\mathbf{c}^{\langle t \rangle}$ in combination with the output gate $\mathbf{\Gamma}_{o}$.
+* The cell state state is passed through the `tanh` function to rescale values between -1 and 1.
+* The output gate acts like a "mask" that either preserves the values of $\tanh(\mathbf{c}^{\langle t \rangle})$ or keeps those values from being included in the hidden state $\mathbf{a}^{\langle t \rangle}$
+
+#### Prediction $\mathbf{y}^{\langle t \rangle}_{pred}$
+* The prediction in this use case is a classification, so you'll use a softmax.
+
+##### Equation
+
+$$
+\mathbf{y}^{\langle t \rangle}_{pred} = \textrm{softmax}(\mathbf{W}_{y} \mathbf{a}^{\langle t \rangle} + \mathbf{b}_{y})
+$$
+
+#### Forward Pass for LSTM
+
+![image-20210625000823702](https://tva1.sinaimg.cn/large/008i3skNgy1grtt24b5wkj31io0ien1s.jpg)
+
+**Instructions**
+* Get the dimensions $n_x, n_a, n_y, m, T_x$ from the shape of the variables
+* Initialize the 3D tensors $a$, $c$ and $y$
+    - $a$: hidden state, shape $(n_{a}, m, T_{x})$
+    - $c$: cell state, shape $(n_{a}, m, T_{x})$
+    - $y$: prediction, shape $(n_{y}, m, T_{x})$ (Note that $T_{y} = T_{x}$ in this example)
+    - **Note** Setting one variable equal to the other is a "copy by reference".  In other words, don't do `c = a', otherwise both these variables point to the same underlying variable.
+* Initialize the 2D tensor $a^{\langle t \rangle}$ 
+    - $a^{\langle t \rangle}$ stores the hidden state for time step $t$.
+    - $a^{\langle 0 \rangle}$, the initial hidden state at time step 0, is passed in when calling the function.
+    - $a^{\langle t \rangle}$ and $a^{\langle 0 \rangle}$ represent a single time step, so they both have the shape  $(n_{a}, m)$ 
+    - Initialize $a^{\langle t \rangle}$ by setting it to the initial hidden state ($a^{\langle 0 \rangle}$) that is passed into the function.
+* Initialize $c^{\langle t \rangle}$ with zeros. 
+    - $c^{\langle t \rangle}$ represents a single time step, so its shape is $(n_{a}, m)$
+    - **Note**: create `c_next` as its own variable with its own location in memory.  Do not initialize it as a slice of the 3D tensor $c$.  In other words, **don't** do `c_next = c[:,:,0]`.
+* For each time step, do the following:
+    - From the 3D tensor $x$, get a 2D slice $x^{\langle t \rangle}$ at time step $t$
+    - Call the `lstm_cell_forward` function that you defined previously, to get the hidden state, cell state, prediction, and cache
+    - Store the hidden state, cell state and prediction (the 2D tensors) inside the 3D tensors
+    - Append the cache to the list of caches
+
+<b>What you should remember</b>:
+
+* An LSTM is similar to an RNN in that they both use hidden states to pass along information, but an LSTM also uses a cell state, which is like a long-term memory, to help deal with the issue of vanishing gradients
+* An LSTM cell consists of a <u>cell state</u>, or <u>long-term memory</u>, a <u>hidden state</u>, or <u>short-term memory</u>, along with 3 gates that constantly update the relevancy of its inputs:
+    * A <b>forget</b> gate, which decides which input units should be remembered and passed along. It's a tensor with values between 0 and 1. 
+        * If a unit has a value close to 0, the LSTM will "forget" the stored state in the previous cell state.
+        * If it has a value close to 1, the LSTM will mostly remember the corresponding value.
+    * An <b>update</b> gate, again a tensor containing values between 0 and 1. It decides on what information to throw away, and what new information to add.
+        * When a unit in the update gate is close to 1, the value of its candidate is passed on to the hidden state.
+        * When a unit in the update gate is close to 0, it's prevented from being passed onto the hidden state.
+    * And an <b>output</b> gate, which decides what gets sent as the output of the time step
+
+### LSTM Backward Pass
+
+![image-20210625125728922](https://tva1.sinaimg.cn/large/008i3skNgy1grufae4hs0j31d40oytec.jpg)
+
+#### Gate Derivatives
+Note the location of the gate derivatives ($\gamma$..) between the dense layer and the activation function (see graphic above). This is convenient for computing parameter derivatives in the next step. 
+$$
+\begin{align}
+d\gamma_o^{\langle t \rangle} &= da_{next}*\tanh(c_{next}) * \Gamma_o^{\langle t \rangle}*\left(1-\Gamma_o^{\langle t \rangle}\right)\tag{7} \\[8pt]
+dp\widetilde{c}^{\langle t \rangle} &= \left(dc_{next}*\Gamma_u^{\langle t \rangle}+ \Gamma_o^{\langle t \rangle}* (1-\tanh^2(c_{next})) * \Gamma_u^{\langle t \rangle} * da_{next} \right) * \left(1-\left(\widetilde c^{\langle t \rangle}\right)^2\right) \tag{8} \\[8pt]
+d\gamma_u^{\langle t \rangle} &= \left(dc_{next}*\widetilde{c}^{\langle t \rangle} + \Gamma_o^{\langle t \rangle}* (1-\tanh^2(c_{next})) * \widetilde{c}^{\langle t \rangle} * da_{next}\right)*\Gamma_u^{\langle t \rangle}*\left(1-\Gamma_u^{\langle t \rangle}\right)\tag{9} \\[8pt]
+d\gamma_f^{\langle t \rangle} &= \left(dc_{next}* c_{prev} + \Gamma_o^{\langle t \rangle} * (1-\tanh^2(c_{next})) * c_{prev} * da_{next}\right)*\Gamma_f^{\langle t \rangle}*\left(1-\Gamma_f^{\langle t \rangle}\right)\tag{10}
+\end{align}
+$$
+
+#### 3. Parameter Derivatives 
+
+$$
+\begin{align}
+dW_f &= d\gamma_f^{\langle t \rangle} \begin{bmatrix} a_{prev} \\ x_t\end{bmatrix}^T \tag{11}\\
+dW_u &= d\gamma_u^{\langle t \rangle} \begin{bmatrix} a_{prev} \\ x_t\end{bmatrix}^T \tag{12}\\
+ dW_c &= dp\widetilde c^{\langle t \rangle} \begin{bmatrix} a_{prev} \\ x_t\end{bmatrix}^T \tag{13}\\
+dW_o &= d\gamma_o^{\langle t \rangle} \begin{bmatrix} a_{prev} \\ x_t\end{bmatrix}^T \tag{14}
+\end{align}
+$$
+
+To calculate $db_f, db_u, db_c, db_o$ you just need to sum across all 'm' examples (axis= 1) on $d\gamma_f^{\langle t \rangle}, d\gamma_u^{\langle t \rangle}, dp\widetilde c^{\langle t \rangle}, d\gamma_o^{\langle t \rangle}$ respectively. Note that you should have the `keepdims = True` option.
+$$
+\begin{align}
+\displaystyle db_f &= \sum_{batch}d\gamma_f^{\langle t \rangle}\tag{15}\\
+\displaystyle db_u &= \sum_{batch}d\gamma_u^{\langle t \rangle}\tag{16}\\
+\displaystyle db_c &= \sum_{batch}d\gamma_c^{\langle t \rangle}\tag{17}\\
+\displaystyle db_o &= \sum_{batch}d\gamma_o^{\langle t \rangle}\tag{18}
+\end{align}
+$$
+Finally, you will compute the derivative with respect to the previous hidden state, previous memory state, and input.
+
+$$
+ da_{prev} = W_f^T d\gamma_f^{\langle t \rangle} + W_u^T   d\gamma_u^{\langle t \rangle}+ W_c^T dp\widetilde c^{\langle t \rangle} + W_o^T d\gamma_o^{\langle t \rangle} \tag{19}
+$$
+Here, to account for concatenation, the weights for equations 19 are the first n_a, (i.e. $W_f = W_f[:,:n_a]$ etc...)
+
+$$
+ dc_{prev} = dc_{next}*\Gamma_f^{\langle t \rangle} + \Gamma_o^{\langle t \rangle} * (1- \tanh^2(c_{next}))*\Gamma_f^{\langle t \rangle}*da_{next} \tag{20}
+$$
+
+$$
+ dx^{\langle t \rangle} = W_f^T d\gamma_f^{\langle t \rangle} + W_u^T  d\gamma_u^{\langle t \rangle}+ W_c^T dp\widetilde c^{\langle t \rangle} + W_o^T d\gamma_o^{\langle t \rangle}\tag{21} 
+$$
+
+where the weights for equation 21 are from n_a to the end, (i.e. $W_f = W_f[:,n_a:]$ etc...)
+
+
+
+
+
+
+
+
+
+
+
+
+
+### Bidirectional RNN (BRNN)
+
+![image-20210624201706456](https://tva1.sinaimg.cn/large/008i3skNgy1grtmdgfgsej313g0lq7mg.jpg)
+$$
+\hat y^{<t>}=g(W_y[\overrightarrow a^{<t>},\overleftarrow{a}^{<t>}]+b_y)
+$$
+The blocks can be not just the standard RNN block but they can also be GRU blocks and LSTM blocks.
+
+**The disadvantage** of the BRNN is that you need the **entire** sequence of data before you can make predictions anywhere.
+
+### Deep RNNs
+
+![image-20210624203128370](https://tva1.sinaimg.cn/large/008i3skNgy1grtmsf48qyj313g0m2dve.jpg)
+
